@@ -99,6 +99,81 @@ def calculate_ema(data, period, column='Close'):
     return ema_series
 
 
+def calculate_rsi(data, periods=14):
+    close_delta = data['Close'].diff()
+
+    # Make two series: one for lower closes and one for higher closes
+    up = close_delta.clip(lower=0)
+    down = -1 * close_delta.clip(upper=0)
+
+    # Calculate the EWMA
+    ma_up = up.ewm(com=periods - 1, adjust=True, min_periods=periods).mean()
+    ma_down = down.ewm(com=periods - 1, adjust=True, min_periods=periods).mean()
+
+    rsi = ma_up / ma_down
+    rsi = 100 - (100 / (1 + rsi))
+    return rsi
+
+
+def calculate_macd(df, fast_period=12, slow_period=26, signal_period=9):
+    # Calculate the fast and slow EMAs
+    ema_fast = df['Close'].ewm(span=fast_period, adjust=False).mean()
+    ema_slow = df['Close'].ewm(span=slow_period, adjust=False).mean()
+
+    # Calculate the MACD line
+    macd_line = ema_fast - ema_slow
+
+    # Calculate the signal line
+    signal_line = macd_line.ewm(span=signal_period, adjust=False).mean()
+
+    # Calculate the MACD histogram
+    macd_histogram = macd_line - signal_line
+
+    # Add the MACD indicators to the DataFrame
+    df['MACD'] = macd_line
+    df['Signal_Line'] = signal_line
+    df['MACD_Histogram'] = macd_histogram
+
+    return df
+
+
+def calculate_fisher(df, period=14):
+    high = df['High'].rolling(window=period).max()
+    low = df['Low'].rolling(window=period).min()
+
+    fisher = 0.5 * np.log((high + low) / (high - low))
+
+    return fisher
+
+
+import pandas as pd
+
+
+def calculate_stochastic(df, window=14, smooth_k=3, smooth_d=3):
+    """
+    Calculate the Stochastic Oscillator for a given DataFrame.
+
+    Parameters:
+    df (pandas.DataFrame): DataFrame containing the 'High', 'Low', and 'Close' columns.
+    window (int): The number of periods to use for the Stochastic Oscillator (default is 14).
+    smooth_k (int): The number of periods to use for smoothing the %K line (default is 3).
+    smooth_d (int): The number of periods to use for smoothing the %D line (default is 3).
+
+    Returns:
+    pandas.DataFrame: The original DataFrame with the following new columns:
+        - '%K': The fast Stochastic Oscillator line.
+        - '%D': The slow Stochastic Oscillator line.
+    """
+    lowest_low = df['Low'].rolling(window=window).min()
+    highest_high = df['High'].rolling(window=window).max()
+
+    df['%K'] = ((df['Close'] - lowest_low) / (highest_high - lowest_low)) * 100
+    df['%K'] = df['%K'].rolling(window=smooth_k).mean()
+    df['%D'] = df['%K'].rolling(window=smooth_d).mean()
+
+    return df
+
+
 def generate_signals(df):
     """
     Generate trading signals based on EMA crossovers.

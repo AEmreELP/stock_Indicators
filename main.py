@@ -13,6 +13,12 @@ def main():
     print(data.iloc[0])
 
     print(calculate_mfi(data,periods=4))
+    print(calculate_ema(data,50))
+    print(calculate_rsi(data,10))
+    print(calculate_macd(data))
+    print(calculate_fisher(data,14))
+    print(calculate_stochastic(data,14,3,3))
 
+    
 if __name__ == "__main__":
     main()
