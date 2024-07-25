@@ -24,7 +24,7 @@ def Hisse_Temel_Veriler():
 def Stock_Prices(Hisse):
     Bar = 13  # Bar değerini buraya yazın
 
-    url = f"https://www.isyatirim.com.tr/_Layouts/15/IsYatirim.Website/Common/ChartData.aspx/IntradayDelay?period=5&code={Hisse}.E.BIST&last={604}"
+    url = f"https://www.isyatirim.com.tr/_Layouts/15/IsYatirim.Website/Common/ChartData.aspx/IntradayDelay?period=5&code=CWENE.E.BIST&last=604"
     r1 = requests.get(url).json()
     data = pd.DataFrame.from_dict(r1)
     data[['Volume', 'Close']] = pd.DataFrame(data['data'].tolist(), index=data.index)
@@ -79,7 +79,7 @@ def List_Trend_Breaks(Hisse, data, best_period, rval=0.85):
     return None, False, None
 
 
-Hisseler = Hisse_Temel_Veriler()
+Hisseler = "CWENE"
 up_breaks = []
 down_breaks = []
 
@@ -112,3 +112,5 @@ if down_breaks:
         print(break_info)
 else:
     print("\nAşağı yönlü kırılım tespit edilmedi.")
+
+data[['Close', 'Volume_as_date']].to_excel("output.xlsx", index=False)
