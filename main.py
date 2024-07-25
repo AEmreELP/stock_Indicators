@@ -19,6 +19,6 @@ def main():
     print(calculate_fisher(data,14))
     print(calculate_stochastic(data,14,3,3))
 
-    
+
 if __name__ == "__main__":
     main()
