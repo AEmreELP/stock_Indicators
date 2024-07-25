@@ -22,9 +22,9 @@ def Hisse_Temel_Veriler():
 
 
 def Stock_Prices(Hisse):
-    Bar = 11  # Bar değerini buraya yazın
+    Bar = 13  # Bar değerini buraya yazın
 
-    url = f"https://www.isyatirim.com.tr/_Layouts/15/IsYatirim.Website/Common/ChartData.aspx/IntradayDelay?period=60&code={Hisse}.E.BIST&last={Bar}"
+    url = f"https://www.isyatirim.com.tr/_Layouts/15/IsYatirim.Website/Common/ChartData.aspx/IntradayDelay?period=5&code={Hisse}.E.BIST&last={604}"
     r1 = requests.get(url).json()
     data = pd.DataFrame.from_dict(r1)
     data[['Volume', 'Close']] = pd.DataFrame(data['data'].tolist(), index=data.index)
@@ -36,7 +36,7 @@ def Stock_Prices(Hisse):
     data['Volume_as_date'] = data['Volume'].apply(lambda x: datetime.datetime.fromtimestamp(x / 1000.0))
 
     # Sonuçları yazdır
-    print(data[['timestamp', 'Volume', 'Volume_as_date']])
+    print(data[['Close', 'Volume_as_date']])
 
     data.drop(columns=['Volume'], inplace=True)
 
