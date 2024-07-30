@@ -1,13 +1,10 @@
+import datetime
+import ssl
+from urllib import request
 import numpy as np
 import pandas as pd
 import requests
 from scipy import stats
-import ssl
-from urllib import request
-import datetime
-import requests
-import pandas as pd
-import datetime
 
 
 def Hisse_Temel_Veriler():
@@ -30,7 +27,7 @@ def Stock_Prices(Hisse):
     data[['Volume', 'Close']] = pd.DataFrame(data['data'].tolist(), index=data.index)
 
     # Volume değerlerine 10800000 ekle
-    data['Volume'] = data['Volume'].apply(lambda x: x + 10800000)
+    data['Volume'] = data['Volume'].apply(lambda x: x )
 
     # Volume değerlerini tarih formatına dönüştür
     data['Volume_as_date'] = data['Volume'].apply(lambda x: datetime.datetime.fromtimestamp(x / 1000.0))

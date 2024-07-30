@@ -50,10 +50,10 @@ def generate_sample_stock_data(start_date=datetime(2023, 1, 1), num_days=100, in
     return df
 
 def calculate_mfi(data, periods=14):
-    high = data['High']
-    low = data['Low']
-    close = data['Close']
-    volume = data['Volume']
+    high = data['HIGH_TL']
+    low = data['LOW_TL']
+    close = data['CLOSING_TL']
+    volume = data['VOLUME_TL']
 
     typical_price = (high + low + close) / 3
     raw_money_flow = typical_price * volume
@@ -97,7 +97,7 @@ def calculate_ema(data, period, column='Close'):
 
 
 def calculate_rsi(data, periods=14):
-    close_delta = data['Close'].diff()
+    close_delta = data['CLOSING_TL'].diff()
 
     # Make two series: one for lower closes and one for higher closes
     up = close_delta.clip(lower=0)
@@ -114,8 +114,8 @@ def calculate_rsi(data, periods=14):
 
 def calculate_macd(df, fast_period=12, slow_period=26, signal_period=9):
     # Calculate the fast and slow EMAs
-    ema_fast = df['Close'].ewm(span=fast_period, adjust=False).mean()
-    ema_slow = df['Close'].ewm(span=slow_period, adjust=False).mean()
+    ema_fast = df['CLOSING_TL'].ewm(span=fast_period, adjust=False).mean()
+    ema_slow = df['CLOSING_TL'].ewm(span=slow_period, adjust=False).mean()
 
     # Calculate the MACD line
     macd_line = ema_fast - ema_slow
@@ -135,8 +135,8 @@ def calculate_macd(df, fast_period=12, slow_period=26, signal_period=9):
 
 
 def calculate_fisher(df, period=14):
-    high = df['High'].rolling(window=period).max()
-    low = df['Low'].rolling(window=period).min()
+    high = df['HIGH_TL'].rolling(window=period).max()
+    low = df['LOW_TL'].rolling(window=period).min()
 
     fisher = 0.5 * np.log((high + low) / (high - low))
 
@@ -161,10 +161,10 @@ def calculate_stochastic(df, window=14, smooth_k=3, smooth_d=3):
         - '%K': The fast Stochastic Oscillator line.
         - '%D': The slow Stochastic Oscillator line.
     """
-    lowest_low = df['Low'].rolling(window=window).min()
-    highest_high = df['High'].rolling(window=window).max()
+    lowest_low = df['LOW_TL'].rolling(window=window).min()
+    highest_high = df['HIGH_TL'].rolling(window=window).max()
 
-    df['%K'] = ((df['Close'] - lowest_low) / (highest_high - lowest_low)) * 100
+    df['%K'] = ((df['CLOSING_TL'] - lowest_low) / (highest_high - lowest_low)) * 100
     df['%K'] = df['%K'].rolling(window=smooth_k).mean()
     df['%D'] = df['%K'].rolling(window=smooth_d).mean()
 
