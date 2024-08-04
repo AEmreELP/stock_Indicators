@@ -3,52 +3,6 @@ import numpy as np
 from datetime import datetime, timedelta
 
 
-def generate_sample_stock_data(start_date=datetime(2023, 1, 1), num_days=100, initial_price=100, initial_volume=1000000,
-                               seed=42):
-    """
-    Generate sample stock data with the following specifications:
-    - Columns: Date, High, Low, Close, and Volume
-    - Random data generation
-    - Daily price constraint: Not lower than 90% or higher than 110% of the previous day's price
-    - Random volume generation
-
-    Parameters:
-    start_date (datetime): The start date for the sample data (default is 2023-01-01)
-    num_days (int): The number of days to generate (default is 100)
-    initial_price (int): The initial price for the first day (default is 100)
-    initial_volume (int): The initial volume for the first day (default is 1,000,000)
-    seed (int): The random seed for reproducibility (default is 42)
-
-    Returns:
-    pandas.DataFrame: A DataFrame containing the sample stock data
-    """
-    # Set random seed for reproducibility
-    np.random.seed(seed)
-
-    # Generate dates
-    dates = [start_date + timedelta(days=i) for i in range(num_days)]
-
-    # Initialize price and volume
-    prev_close = initial_price
-
-    # Generate data
-    data = []
-    for date in dates:
-        # Generate price within ±10% of previous close
-        low = prev_close * np.random.uniform(0.9, 1.0)
-        high = prev_close * np.random.uniform(1.0, 1.1)
-        close = np.random.uniform(low, high)
-
-        # Generate random volume
-        volume = int(np.random.uniform(0.5, 1.5) * initial_volume)
-
-        data.append([date, high, low, close, volume])
-        prev_close = close
-
-    # Create DataFrame
-    df = pd.DataFrame(data, columns=['Date', 'High', 'Low', 'Close', 'Volume'])
-    return df
-
 def calculate_mfi(data, periods=14):
     high = data['HIGH_TL']
     low = data['LOW_TL']

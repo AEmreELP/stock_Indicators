@@ -21,13 +21,13 @@ def Hisse_Temel_Veriler():
 def Stock_Prices(Hisse):
     Bar = 13  # Bar değerini buraya yazın
 
-    url = f"https://www.isyatirim.com.tr/_Layouts/15/IsYatirim.Website/Common/ChartData.aspx/IntradayDelay?period=5&code=CWENE.E.BIST&last=604"
+    url = f"https://www.isyatirim.com.tr/_Layouts/15/IsYatirim.Website/Common/ChartData.aspx/IntradayDelay?period=5&code=INGRM.E.BIST&last=604"
     r1 = requests.get(url).json()
     data = pd.DataFrame.from_dict(r1)
     data[['Volume', 'Close']] = pd.DataFrame(data['data'].tolist(), index=data.index)
 
     # Volume değerlerine 10800000 ekle
-    data['Volume'] = data['Volume'].apply(lambda x: x )
+    data['Volume'] = data['Volume'].apply(lambda x: x+108000 )
 
     # Volume değerlerini tarih formatına dönüştür
     data['Volume_as_date'] = data['Volume'].apply(lambda x: datetime.datetime.fromtimestamp(x / 1000.0))
