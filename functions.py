@@ -1,6 +1,7 @@
-
 import numpy as np
 from datetime import datetime, timedelta
+import ta
+import pandas as pd
 
 
 def calculate_mfi(data, periods=14):
@@ -27,27 +28,31 @@ def calculate_mfi(data, periods=14):
 # Assuming you have a DataFrame 'df' with columns 'High', 'Low', 'Close', and 'Volume'
 # df['MFI'] = calculate_mfi(df)
 
-def calculate_ema(data, period, column='Close'):
-    """
-    Calculate Exponential Moving Average (EMA) for a given dataset.
+def calculate_ema(data, period, column='CLOSING_TL'):
+    return ta.trend.EMAIndicator(data['CLOSING_TL'], window=period).ema_indicator()
 
-    Parameters:
-    data (pandas.DataFrame): DataFrame containing the price data
-    period (int): The period over which to calculate the EMA
-    column (str): The name of the column containing the price data (default is 'Close')
 
-    Returns:
-    pandas.Series: EMA values
-    """
-    data = data.sort_index()
-    multiplier = 2 / (period + 1)
-    sma = data[column].rolling(window=period).mean().iloc[period - 1]
-    ema_values = [sma]
-    for price in data[column][period:]:
-        ema = (price - ema_values[-1]) * multiplier + ema_values[-1]
-        ema_values.append(ema)
-    ema_series = pd.Series(ema_values, index=data.index[period - 1:], name=f'EMA_{period}')
-    return ema_series
+# def calculate_ema(data, period, column='Close'):
+#     """
+#     Calculate Exponential Moving Average (EMA) for a given dataset.
+#
+#     Parameters:
+#     data (pandas.DataFrame): DataFrame containing the price data
+#     period (int): The period over which to calculate the EMA
+#     column (str): The name of the column containing the price data (default is 'Close')
+#
+#     Returns:
+#     pandas.Series: EMA values
+#     """
+#     data = data.sort_index()
+#     multiplier = 2 / (period + 1)
+#     sma = data[column].rolling(window=period).mean().iloc[period - 1]
+#     ema_values = [sma]
+#     for price in data[column][period:]:
+#         ema = (price - ema_values[-1]) * multiplier + ema_values[-1]
+#         ema_values.append(ema)
+#     ema_series = pd.Series(ema_values, index=data.index[period - 1:], name=f'EMA_{period}')
+#     return ema_series
 
 
 def calculate_rsi(data, periods=14):
@@ -65,7 +70,8 @@ def calculate_rsi(data, periods=14):
     rsi = 100 - (100 / (1 + rsi))
     return rsi
 
-
+def calculate_rsi_with_ta(data, window=14):
+    return ta.momentum.RSIIndicator(data['CLOSING_TL'], window).rsi()
 def calculate_macd(df, fast_period=12, slow_period=26, signal_period=9):
     # Calculate the fast and slow EMAs
     ema_fast = df['CLOSING_TL'].ewm(span=fast_period, adjust=False).mean()
@@ -97,8 +103,6 @@ def calculate_fisher(df, period=14):
     return fisher
 
 
-import pandas as pd
-
 
 def calculate_stochastic(df, window=14, smooth_k=3, smooth_d=3):
     """
@@ -124,17 +128,44 @@ def calculate_stochastic(df, window=14, smooth_k=3, smooth_d=3):
 
     return df
 
-
-def generate_signals(df):
+def calculate_pivot_point(data):
     """
-    Generate trading signals based on EMA crossovers.
+    Calculates the standard pivot point and support/resistance levels for a given stock.
 
-    Parameters:
-    df (pandas.DataFrame): DataFrame containing 'EMA_20' and 'EMA_50' columns
+    Args:
+      data: Pandas DataFrame containing stock data with 'High', 'Low', and 'Close' columns.
+      high_col: Name of the column containing high prices (default: 'High').
+      low_col: Name of the column containing low prices (default: 'Low').
+      close_col: Name of the column containing close prices (default: 'Close').
 
     Returns:
-    pandas.DataFrame: DataFrame with added 'Signal' and 'Position' columns
+      A dictionary containing the pivot point (PP), resistance levels (R1, R2, R3),
+      and support levels (S1, S2, S3).
     """
-    df['Signal'] = np.where(df['EMA_20'] > df['EMA_50'], 1, 0)  # 1 for buy, 0 for sell
-    df['Position'] = df['Signal'].diff()
-    return df
+
+    # Calculate the pivot point
+    last_high = data["HIGH_TL"].iloc[-1]
+    last_low = data["LOW_TL"].iloc[-1]
+    last_close = data["CLOSING_TL"].iloc[-1]
+    pivot_point = (last_high + last_low + last_close) / 3
+
+    # Calculate support and resistance levels
+    s1 = (2 * pivot_point) - last_high
+    r1 = (2 * pivot_point) - last_low
+    s2 = pivot_point - (last_high - last_low)
+    r2 = pivot_point + (last_high - last_low)
+    s3 = last_low - 2 * (last_high - pivot_point)
+    r3 = last_high + 2 * (pivot_point - last_low)
+
+    return {
+        'PP': pivot_point,
+        'R1': r1,
+        'R2': r2,
+        'R3': r3,
+        'S1': s1,
+        'S2': s2,
+        'S3': s3
+    }
+
+# Example usage:
+# Assuming you have a Pandas DataFrame called 'df' with columns 'High', 'Low', and 'Close'
