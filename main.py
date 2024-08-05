@@ -9,7 +9,7 @@ def main():
     stock_data = StockData()
 
     df = stock_data.get_data(
-        symbols=['CWENE'],
+        symbols=['MIATK'],
         start_date='31-05-2023',
         end_date='31-07-2024',
         exchange='0',
@@ -33,6 +33,28 @@ def main():
     print(calculate_stochastic(df,14,3,3))
     print("PIVOT")
     print(calculate_pivot_point(df))
+
+
+
+    print("********************************")
+    last_mfi=calculate_mfi(df,14).iloc[-1]
+    last_rsi=calculate_rsi_with_ta(df,14).iloc[-1]
+
+    print(last_rsi)
+    print("MFI indicator")
+    if(last_mfi>=80):
+        print("Sat")
+    elif (last_mfi<=20):
+        print("Al")
+    else:
+        print("Nötr")
+
+    print("RSI indicator")
+    if(last_rsi>=50):
+        print("Sat")
+    elif (last_rsi<50):
+        print("Al")
+
 
 
 
