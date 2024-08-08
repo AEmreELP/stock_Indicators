@@ -1,7 +1,20 @@
+import ssl
 import numpy as np
 from datetime import datetime, timedelta
 import ta
 import pandas as pd
+from urllib import request
+
+
+def Hisse_Temel_Veriler():
+    url1 = "https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/Temel-Degerler-Ve-Oranlar.aspx#page-1"
+    context = ssl._create_unverified_context()
+    response = request.urlopen(url1, context=context)
+    url1 = response.read()
+    df = pd.read_html(url1, decimal=',', thousands='.')
+    df = df[6]
+    Hisseler = df['Kod'].values.tolist()
+    return Hisseler
 
 
 def calculate_mfi(data, periods=14):
