@@ -1,9 +1,10 @@
 import ssl
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta,date
 import ta
 import pandas as pd
 from urllib import request
+
 
 
 def Hisse_Temel_Veriler():
