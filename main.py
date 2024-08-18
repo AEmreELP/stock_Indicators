@@ -5,53 +5,58 @@ from functions import *
 from isyatirimhisse import StockData, Financials
 import ta
 import time
-from datetime import datetime, timedelta,date
-print(date.today())
-# print 2 weeks ago
-print(date.today() - timedelta(weeks=2))
-
-print((date.today() - timedelta(weeks=2)).strftime('%d-%m-%Y'))
 
 def main():
     Hisseler=Hisse_Temel_Veriler()
 
     stock_data = StockData()
-    day = str(datetime.today().day)
-    month = str(datetime.today().month)
-    year = str(datetime.today().year)
-    for hisse in Hisseler:
-        try:
+    decisions = []
 
-            df = stock_data.get_data(
-                symbols=[hisse],
-                start_date=(date.today() - timedelta(weeks=3)).strftime('%d-%m-%Y'),
-                end_date=date.today().strftime('%d-%m-%Y') ,
-                exchange='0',
-                frequency='1d',
-                return_type='0',
-                save_to_excel=False
-            )
-            print(datetime.today().day)
-            print(datetime.today().month)
-            last_mfi = calculate_mfi(df, 14).iloc[-1]
-            last_rsi = calculate_rsi_with_ta(df, 14).iloc[-1]
-            print(last_mfi)
-            if (last_mfi >= 80):
-                print(f'{hisse}, MFI ya göre Sat')
-            elif (last_mfi <= 20):
-                print(f'{hisse}, MFI ya göre Al')
-            else:
-                print(f'{hisse}, MFI ya göre Nötr')
-            if (last_rsi >= 50):
-                print(f'{hisse}, RSI ya göre Sat')
-            elif (last_rsi < 50):
-                print(f'{hisse}, RSI ya göre Al')
-            if(last_mfi <= 20 and last_rsi < 50):
-                print(f'Bu hisseyi alabilrisin {hisse}')
+    #last 100 days
+    for i in range(0, 10):
+        for hisse in Hisseler:
+            try:
+                end_date = (date.today() - timedelta(days=i)).strftime('%d-%m-%Y')
+                df = stock_data.get_data(
+                    symbols=[hisse],
+                    start_date=(date.today() - timedelta(weeks=3,days=i)).strftime('%d-%m-%Y'),
+                    end_date=end_date,
+                    exchange='0',
+                    frequency='1d',
+                    return_type='0',
+                    save_to_excel=False
+                )
+                last_mfi = calculate_mfi(df, 14).iloc[-1]
+                last_rsi = calculate_rsi_with_ta(df, 14).iloc[-1]
+                if last_mfi >= 80:
+                    decision_mfi = f'{hisse}, MFI ya göre Sat'
+                elif last_mfi <= 20:
+                    decision_mfi = f'{hisse}, MFI ya göre Al'
+                else:
+                    decision_mfi = f'{hisse}, MFI ya göre Nötr'
+                if (last_rsi >= 50):
+                    decision_rsi = f'{hisse}, RSI ya göre Sat'
+                elif (last_rsi < 50):
+                    decision_rsi = f'{hisse}, RSI ya göre Al'
+                if(last_mfi <= 20 and last_rsi < 50):
+                    decision_rsi = f'{hisse}, RSI ve MFI ya göre Al'
 
-        except Exception as e:
-            print(f'Hisse {hisse} hata : {e}')
-            continue
+                decisions.append({
+                'Hisse': hisse,
+                'MFI': last_mfi,
+                'RSI': last_rsi,
+                'Decision_Mfi': decision_mfi,
+                'Decision_Rsi': decision_rsi,
+                'Date': end_date
+                })
+
+            except Exception as e:
+                print(f'Hisse {hisse} hata : {e}')
+                continue
+    
+    decision_df = pd.DataFrame(decisions)
+
+    decision_df.to_excel('decisions.xlsx', index=False)
     #
     # """ To get all stock prices in excel we used upper codes."""
     # print(df.iloc[-1])
