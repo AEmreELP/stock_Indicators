@@ -30,6 +30,8 @@ def calculate_mfi(data, periods=14):
     positive_flow = np.where(typical_price > typical_price.shift(1), raw_money_flow, 0)
     negative_flow = np.where(typical_price < typical_price.shift(1), raw_money_flow, 0)
 
+    periods=min(periods,len(data))# to avoid getting nan values
+
     positive_mf = pd.Series(positive_flow).rolling(window=periods).sum()
     negative_mf = pd.Series(negative_flow).rolling(window=periods).sum()
 
@@ -75,6 +77,7 @@ def calculate_rsi(data, periods=14):
     # Make two series: one for lower closes and one for higher closes
     up = close_delta.clip(lower=0)
     down = -1 * close_delta.clip(upper=0)
+    periods=min(periods,len(data))# to avoid getting nan values
 
     # Calculate the EWMA
     ma_up = up.ewm(com=periods - 1, adjust=True, min_periods=periods).mean()
