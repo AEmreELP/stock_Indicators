@@ -6,6 +6,7 @@ from isyatirimhisse import StockData, Financials
 import ta
 from datetime import date, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import time
 
 def process_stock(hisse, i):
     stock_data = StockData()
@@ -51,8 +52,8 @@ def process_stock(hisse, i):
 
 def main():
     Hisseler = Hisse_Temel_Veriler()
-    decisions = []
-
+    #decisions = []
+    start_time = time.time()
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = []
         for i in range(0, 10):
@@ -62,10 +63,14 @@ def main():
         for future in as_completed(futures):
             result = future.result()
             if result:
-                decisions.append(result)
-
+                #decisions.append(result)
+                pass
+    end_time = time.time()
+    print(f'Geçen süre: {end_time - start_time}')
+    """
     decision_df = pd.DataFrame(decisions)
     decision_df.to_excel('decisions.xlsx', index=False)
+    """
 
     #
     # """ To get all stock prices in excel we used upper codes."""
