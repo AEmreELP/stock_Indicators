@@ -8,22 +8,34 @@ from datetime import date, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 
-def process_stock(hisse, i):
+def process_stock(hisse):
     stock_data = StockData()
     try:
-        end_date = (date.today() - timedelta(days=i)).strftime('%d-%m-%Y')
+        end_date = (date.today()).strftime('%d-%m-%Y')
+        start_date = (date.today() - timedelta(weeks=2)).strftime('%d-%m-%Y')
         df = stock_data.get_data(
             symbols=[hisse],
-            start_date=(date.today() - timedelta(weeks=3, days=i)).strftime('%d-%m-%Y'),
-            end_date=end_date,
+            #start_date=start_date,
+            start_date="02-09-2024",
+            end_date="19-09-2024",
             exchange='0',
             frequency='1d',
             return_type='0',
             save_to_excel=False
         )
+        print("**********************")
+        print("**********************")
+
+        print(end_date)
+        print(start_date)
+        print("**********************")
+        print("**********************")
         last_mfi = calculate_mfi(df, 14).iloc[-1]
         last_rsi = calculate_rsi_with_ta(df, 14).iloc[-1]
-        
+
+        print(last_mfi)
+        print("**********************")
+        print("**********************")
         if last_mfi >= 80:
             decision_mfi = f'{hisse}, MFI ya göre Sat'
         elif last_mfi <= 20:
@@ -37,7 +49,15 @@ def process_stock(hisse, i):
             decision_rsi = f'{hisse}, RSI ya göre Al'
         else:
             decision_rsi = f'{hisse}, RSI ya göre Nötr'
-        
+
+        print(f"hisse:{hisse}\n"
+              f"Last mfi :{last_mfi}\n"
+              f"Last rsi : {last_rsi}\n"
+              f"Decision_mfi:{decision_mfi}\n"
+              f"Decision_rsi:{decision_rsi}\n"
+              f"End_date:{end_date} \n")
+        print("----------------------------------")
+
         return {
             'Hisse': hisse,
             'MFI': last_mfi,
@@ -52,7 +72,10 @@ def process_stock(hisse, i):
 
 def main():
     Hisseler = Hisse_Temel_Veriler()
+    print(Hisseler)
     #decisions = []
+    for hisse in Hisseler:
+        process_stock(hisse)
     start_time = time.time()
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = []
