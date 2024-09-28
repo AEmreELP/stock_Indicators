@@ -48,6 +48,7 @@ def calculate_ema(data, period, column='CLOSING_TL'):
     return ta.trend.EMAIndicator(data['CLOSING_TL'], window=period).ema_indicator()
 
 
+
 # def calculate_ema(data, period, column='Close'):
 #     """
 #     Calculate Exponential Moving Average (EMA) for a given dataset.
@@ -108,9 +109,11 @@ def calculate_macd(df, fast_period=12, slow_period=26, signal_period=9):
     df['Signal_Line'] = signal_line
     df['MACD_Histogram'] = macd_histogram
 
-    return df
+    return df['Signal_Line']
 
 
+def calculate_macd_with_ta(data):
+    return ta.trend.macd(data, window_slow=26, window_fast=12, fillna=False)
 def calculate_fisher(df, period=14):
     high = df['HIGH_TL'].rolling(window=period).max()
     low = df['LOW_TL'].rolling(window=period).min()
